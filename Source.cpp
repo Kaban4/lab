@@ -3,23 +3,19 @@
 using namespace std;
 
 template<class T>
-class point
-{
+class point{
 public:
 	T x;
 	T y;
 	T z;
+
 	point() {
 		x = 0;
 		y = 0;
 		z = 0;
 	}
 
-	point(int i) {
-		x = i;
-		y = i;
-		z = i;
-	}
+	point(T i) {  x = i; y = i; z = i;  }
 
 	point<T> operator+(const point<T>& m)const {
 		try {
@@ -96,7 +92,7 @@ public:
 		column = columns;
 		matrix = new T * [row];
 		if (matrix == NULL) {
-			cout << "Îøèáêà âûäåëåíèÿ ïàìÿòè" << endl;
+			cout << "Memory allocation error" << endl;
 			delete[]matrix;
 			return;
 		}
@@ -149,6 +145,9 @@ public:
 		if (&a == this) return *this;
 		row = a.row;
 		column = a.column;
+/*		for (size_t i = 0; i < row; i++)
+			delete[] matrix[i];
+		delete[] matrix*/;
 		matrix = new T * [row];
 		for (size_t i = 0; i < row; i++)
 			matrix[i] = new T[column];
@@ -168,11 +167,11 @@ public:
 		return out;
 	}
 
-	void set(size_t i, size_t j) {
+	void set(size_t i, size_t j, T k) {
 		try {
 			if ((i >= row) || (j >= column))
 				throw - 2;
-			cin >> matrix[i][j];
+			matrix[i][j] = k;
 		}
 		catch (int i) {
 			cout << "Error ¹" << i << " index too big!" << endl;
@@ -180,40 +179,40 @@ public:
 		}
 	}
 
-	T get(const size_t i, const size_t j) {
+	T get(const size_t i, const size_t j) const{
 		try {
 			if ((i >= row) || (j >= column))
 				throw - 2;
 		}
 		catch (int i) {
 			cout << "Error ¹" << i << " index too big" << endl;
-			return 0;
+			return;
 		}
 		return matrix[i][j];
 	}
 
-	void rows(const int k) {
+	void rows(const size_t k) {
 		try {
 			if (k >= row)
 				throw - 2;
 		}
 		catch (int i) {
 			cout << "Error ¹" << i << " index too big" << endl;
-			return 0;
+			return ;
 		}
 		for (int i = 0; i < column; i++) {
 			cout << matrix[k][i];
 		}
 	}
 
-	void ñolumns(const int k) {
+	void columns(const size_t k) {
 		try {
 			if (k >= column)
 				throw - 2;
 		}
 		catch (int i) {
 			cout << "Error ¹" << i << " index too big" << endl;
-			return 0;
+			return ;
 		}
 		for (int i = 0; i < row; i++) {
 			cout << matrix[i][k];
@@ -221,7 +220,6 @@ public:
 	}
 
 	Matrix operator+(const Matrix<T>& m)const {
-		T result = 0;
 		try {
 			if ((row == m.row) && (column == m.column)) {
 				Matrix<T> v(row, column);
@@ -266,6 +264,7 @@ int main() {
 	Matrix <int> a(3, 2, 1);
 	Matrix <int> b(3, 2, 0);
 	Matrix <int> c(4, 4, 0);
+	test.set(1, 1, 1);
 	auto test3 = test + test2;
 	cout << test3;
 	/*a.set(1, 1);
@@ -276,3 +275,5 @@ int main() {
 	cout << c;*/
 	return 0;
 }
+
+//#2 #3 #5 #24 #26 #27 #29 #30 #16
