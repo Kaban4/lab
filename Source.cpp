@@ -84,27 +84,24 @@ template<class T>
 class Matrix {
 private:
 	T** matrix;
+	T* raw_matrix;
 	size_t row;
 	size_t column;
 public:
 	Matrix(size_t rows, size_t columns, bool k) {
 		row = rows;
 		column = columns;
-		matrix = new T * [row];
-		if (matrix == NULL) {
-			cout << "Memory allocation error" << endl;
-			delete[]matrix;
-			return;
+		try { matrix = new T * [row]; }
+		catch (bad_alloc& ba) {
+			throw bad_alloc(ba);
 		}
-		for (size_t i = 0; i < row; i++) {
-			matrix[i] = new T[column];
-			if (matrix[i] == NULL) {
-				for (size_t j = 0; j < i + 1; j++) {
-					delete[] matrix[j];
-				}
-				return;
-			}
+		try { raw_matrix = new T[row * column]; }
+		catch (bad_alloc& ba) {
+			delete[] matrix;
+			throw bad_alloc(ba);
 		}
+		for (size_t i = 0; i < row; i++)
+			matrix[i] = raw_matrix + i * column;
 		for (size_t i = 0; i < row; i++) {
 			for (size_t j = 0; j < column; j++)
 				matrix[i][j] = k;
@@ -114,21 +111,17 @@ public:
 	Matrix(size_t rows, size_t columns) {
 		row = rows;
 		column = columns;
-		matrix = new T * [row];
-		if (matrix == NULL) {
-			cout << "Memory allocation error" << endl;
-			delete[]matrix;
-			return;
+		try { matrix = new T * [row]; }
+		catch (bad_alloc& ba) {
+			throw bad_alloc(ba);
 		}
-		for (size_t i = 0; i < row; i++) {
-			matrix[i] = new T[column];
-			if (matrix[i] == NULL) {
-				for (size_t j = 0; j < i + 1; j++) {
-					delete[] matrix[j];
-				}
-				return;
-			}
+		try { raw_matrix = new T[row * column]; }
+		catch (bad_alloc& ba) {
+			delete[] matrix;
+			throw bad_alloc(ba);
 		}
+		for (size_t i = 0; i < row; i++)
+			matrix[i] = raw_matrix + i * column;
 		srand((unsigned int)time(0));
 		for (size_t i = 0; i < row; i++) {
 			for (size_t j = 0; j < column; j++) {
@@ -145,12 +138,19 @@ public:
 		if (&a == this) return *this;
 		row = a.row;
 		column = a.column;
-/*		for (size_t i = 0; i < row; i++)
-			delete[] matrix[i];
-		delete[] matrix*/;
-		matrix = new T * [row];
+		delete[] raw_matrix;
+		delete[] matrix;
+		try { matrix = new T * [row]; }
+		catch (bad_alloc& ba) {
+			throw bad_alloc(ba);
+		}
+		try { raw_matrix = new T[row * column]; }
+		catch (bad_alloc& ba) {
+			delete[] matrix;
+			throw bad_alloc(ba);
+		}
 		for (size_t i = 0; i < row; i++)
-			matrix[i] = new T[column];
+			matrix[i] = raw_matrix + i * column;
 		for (size_t i = 0; i < row; i++) {
 			for (size_t j = 0; j < column; j++)
 				matrix[i][j] = a.matrix[i][j];
@@ -252,21 +252,21 @@ public:
 	}
 
 	~Matrix() {
-		for (size_t i = 0; i < row; i++)
-			delete[] matrix[i];
+		delete[] raw_matrix;
 		delete[] matrix;
 	}
 };
 
 int main() {
-	Matrix <point<int>> test(3, 2, 1);
-	Matrix <point<int>> test2(3, 2, 1);
+	//Matrix <point<int>> test(3, 5, 1);
+	//Matrix <point<int>> test2(3, 5, 1);
 	Matrix <int> a(3, 2, 1);
 	Matrix <int> b(3, 2, 0);
 	Matrix <int> c(4, 4, 0);
-	test.set(1, 1, 1);
-	auto test3 = test + test2;
-	cout << test3;
+	cout << a;
+	//test.set(1, 1, 1);
+	//auto test3 = test + test2;
+	//cout << test3;
 	/*a.set(1, 1);
 	b.set(1, 1);
 	c = b + a;
@@ -276,4 +276,4 @@ int main() {
 	return 0;
 }
 
-//#2 #3 #5 #24 #26 #27 #29 #30 #16
+//#4 #10 #12 #13 #14 #18 #21 #31
