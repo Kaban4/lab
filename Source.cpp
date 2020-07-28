@@ -78,7 +78,7 @@ template<class T>
 class Matrix {
 private:
 	T** matrix;
-	T* raw_matrix;
+	//T* raw_matrix;
 	size_t row;
 	size_t column;
 public:
@@ -89,14 +89,14 @@ public:
 		catch (bad_alloc& ba) {
 			throw bad_alloc(ba);
 		}
-		try { raw_matrix = new T[row * column]; }
+		try { matrix[0] = new T[row * column]; }
 		catch (bad_alloc& ba) {
 			delete[] matrix;
 			matrix = nullptr;
 			throw bad_alloc(ba);
 		}
 		for (size_t i = 0; i < row; i++)
-			matrix[i] = raw_matrix + i * column;
+			matrix[i] = matrix[0] + i * column;
 		for (size_t i = 0; i < row; i++) {
 			for (size_t j = 0; j < column; j++)
 				matrix[i][j] = k;
@@ -110,14 +110,14 @@ public:
 		catch (bad_alloc& ba) {
 			throw bad_alloc(ba);
 		}
-		try { raw_matrix = new T[row * column]; }
+		try { matrix[0] = new T[row * column]; }
 		catch (bad_alloc& ba) {
 			delete[] matrix;
 			matrix = nullptr;
 			throw bad_alloc(ba);
 		}
 		for (size_t i = 0; i < row; i++)
-			matrix[i] = raw_matrix + i * column;
+			matrix[i] = matrix[0] + i * column;
 		srand((unsigned int)time(0));
 		for (size_t i = 0; i < row; i++) {
 			for (size_t j = 0; j < column; j++) {
@@ -133,14 +133,14 @@ public:
 		catch (bad_alloc& ba) {
 			throw bad_alloc(ba);
 		}
-		try { raw_matrix = new T[row * column]; }
+		try { matrix[0] = new T[row * column]; }
 		catch (bad_alloc& ba) {
 			delete[] matrix;
 			matrix = nullptr;
 			throw bad_alloc(ba);
 		}
 		for (size_t i = 0; i < row; i++)
-			matrix[i] = raw_matrix + i * column;
+			matrix[i] = matrix[0] + i * column;
 		for (size_t i = 0; i < row; i++) {
 			for (size_t j = 0; j < column; j++)
 				matrix[i][j] = a.matrix[i][j];
@@ -151,22 +151,22 @@ public:
 		if (&a == this) return *this;
 		row = a.row;
 		column = a.column;
-		delete[] raw_matrix;
-		raw_matrix = nullptr;
+		delete[] matrix[0];
+		matrix[0] = nullptr;
 		delete[] matrix;
 		matrix = nullptr;
 		try { matrix = new T * [row]; }
 		catch (bad_alloc& ba) {
 			throw bad_alloc(ba);
 		}
-		try { raw_matrix = new T[row * column]; }
+		try { matrix[0] = new T[row * column]; }
 		catch (bad_alloc& ba) {
 			delete[] matrix;
 			matrix = nullptr;
 			throw bad_alloc(ba);
 		}
 		for (size_t i = 0; i < row; i++)
-			matrix[i] = raw_matrix + i * column;
+			matrix[i] = matrix[0] + i * column;
 		for (size_t i = 0; i < row; i++) {
 			for (size_t j = 0; j < column; j++)
 				matrix[i][j] = a.matrix[i][j];
@@ -232,40 +232,24 @@ public:
 	}
 
 	Matrix operator+(const Matrix<T>& m)const {
-		try {
-			if ((row == m.row) && (column == m.column)) {
-				Matrix<T> v(row, column);
-				for (size_t i = 0; i < row; i++) {
-					for (size_t j = 0; j < column; j++) {
-						v.matrix[i][j] = matrix[i][j] + m.matrix[i][j];
-						/*if ((matrix[i][j] >= 0) && (m.matrix[i][j] >= 0)) {
-							if ((v.matrix[i][j] < matrix[i][j]) || (v.matrix[i][j] < m.matrix[i][j]))
-								throw - 3;
-						}
-						if ((matrix[i][j] < 0) && (m.matrix[i][j] < 0)) {
-							if ((v.matrix[i][j] > matrix[i][j]) || (v.matrix[i][j] > m.matrix[i][j]))
-								throw - 3;
-						}*/
-					}
+		if ((row == m.row) && (column == m.column)) {
+			Matrix<T> v(row, column);
+			for (size_t i = 0; i < row; i++) {
+				for (size_t j = 0; j < column; j++) {
+					v.matrix[i][j] = matrix[i][j] + m.matrix[i][j];
 				}
-				return v;
 			}
-			else {
-				throw - 1;
-			}
+			return v;
 		}
-		catch (int i) {
-			/*if (i == -3)
-				cout << "Error ¹" << i << " stackoverflow" << endl;*/
-			if (i == -1)
-				cout << "Error ¹" << i << " different size" << endl;
-			return *this;
+		else {
+			throw (invalid_argument("Different size!"));
 		}
+		return *this;
 	}
 
 	~Matrix() {
-		delete[] raw_matrix;
-		raw_matrix = nullptr;
+		delete[] matrix[0];
+		matrix[0] = nullptr;
 		delete[] matrix;
 		matrix = nullptr;
 	}
@@ -281,14 +265,14 @@ int main() {
 		Matrix <point> test(3, 5, 1);
 		Matrix <point> test2(3, 5, 1);
 		Matrix <point> test3(3, 2, 1);
-		Matrix <int> a(3, 2, 1);
+		Matrix <char> a(3, 2);
 		Matrix <int> b(2, 2, 0);
 		Matrix <int> c(2, 2, 0);
 		a.rows(1);
 		cout << "\n\n";
 		a.columns(1);
 		cout << "\n\n";
-		a.set(1, 1, 4);
+		a.set(1, 1, 'k');
 		a.get(1, 1);
 		cout << a << "\n";
 		test.set(1, 1, 1);
@@ -312,4 +296,4 @@ int main() {
 	return 0;
 }
 
-// #6 #7 #8 #11 #17 #20 #22 #25 #28  
+//
