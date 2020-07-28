@@ -2,81 +2,75 @@
 #include <time.h>
 using namespace std;
 
-template<class T>
-class point{
+class point {
+private:
+	int x;
+	int y;
+	int z;
+	void check(int sum,int i, int j) const{
+		if ((i >= 0) && (j >= 0)) {
+			if ((sum < i) || (sum < j))
+				throw (out_of_range("Stackoverflow!"));
+		}
+		if ((i < 0) && (j < 0)) {
+			if ((sum > i) || (sum > j))
+				throw (out_of_range("Stackoverflow!"));
+		}
+	}
 public:
-	T x;
-	T y;
-	T z;
-
 	point() {
 		x = 0;
 		y = 0;
 		z = 0;
 	}
 
-	point(T i) {  x = i; y = i; z = i;  }
+	point(int i) { x = i; y = i; z = i; }
 
-	point<T> operator+(const point<T>& m)const {
+	point operator+(const point& m)const {
 		try {
-			point<T> v;
+			point v;
 			v.x = x + m.x;
-			if ((x >= 0) && (m.x >= 0)) {
-				if ((v.x < x) || (v.x < m.x))
-					throw - 3;
-			}
-			if ((x < 0) && (m.x < 0)) {
-				if ((v.x > x) || (v.x > m.x))
-					throw - 3;
-			}
+			check(v.x, x, m.x);
 			v.y = y + m.y;
-			if ((y >= 0) && (m.y >= 0)) {
-				if ((v.y < y) || (v.y < m.y))
-					throw - 3;
-			}
-			if ((y < 0) && (m.y < 0)) {
-				if ((v.y > y) || (v.y > m.y))
-					throw - 3;
-			}
+			check(v.y, y, m.y);
 			v.z = z + m.z;
-			if ((z >= 0) && (m.z >= 0)) {
-				if ((v.z < z) || (v.z < m.z))
-					throw - 3;
-			}
-			if ((z < 0) && (m.z < 0)) {
-				if ((v.z > z) || (v.z > m.z))
-					throw - 3;
-			}
+			check(v.z, z, m.z);
 			return v;
 		}
-		catch (int i) {
-			cout << "Error ¹" << i << " stackoverflow" << endl;
-			return *this;
+		catch (out_of_range) {
+			throw (out_of_range("Stackoverflow!"));
 		}
 	}
 
-	point& operator = (const point<T>& a) {
+	point& operator = (const point& a) {
 		x = a.x;
 		y = a.y;
 		z = a.z;
 		return *this;
 	}
 
-	friend ostream& operator << (ostream& out, point<T>& n) {
-		out << '{' << n.x << ' ' << n.y << ' ' << n.z << '}';
-		return out;
-	}
-
-	bool operator >(const point<T> a) const {
+	bool operator >(const point a) const {
 		return (x + y + z) > (a.x + a.y + a.z);
 	}
 
-	bool operator >=(const point<T> a) const {
+	bool operator >=(const point a) const {
 		return (x + y + z) >= (a.x + a.y + a.z);
 	}
 
-	bool operator <(const point<T> a) const {
+	bool operator <(const point a) const {
 		return (x + y + z) > (a.x + a.y + a.z);
+	}
+
+	int get_x() {
+		return x;
+	}
+
+	int get_y() {
+		return y;
+	}
+
+	int get_z() {
+		return z;
 	}
 };
 
@@ -98,6 +92,7 @@ public:
 		try { raw_matrix = new T[row * column]; }
 		catch (bad_alloc& ba) {
 			delete[] matrix;
+			matrix = nullptr;
 			throw bad_alloc(ba);
 		}
 		for (size_t i = 0; i < row; i++)
@@ -118,6 +113,7 @@ public:
 		try { raw_matrix = new T[row * column]; }
 		catch (bad_alloc& ba) {
 			delete[] matrix;
+			matrix = nullptr;
 			throw bad_alloc(ba);
 		}
 		for (size_t i = 0; i < row; i++)
@@ -131,15 +127,8 @@ public:
 	}
 
 	Matrix(const Matrix& a) {
-		*this = a;
-	}
-
-	Matrix& operator = (const Matrix<T>& a) {
-		if (&a == this) return *this;
 		row = a.row;
 		column = a.column;
-		delete[] raw_matrix;
-		delete[] matrix;
 		try { matrix = new T * [row]; }
 		catch (bad_alloc& ba) {
 			throw bad_alloc(ba);
@@ -147,6 +136,33 @@ public:
 		try { raw_matrix = new T[row * column]; }
 		catch (bad_alloc& ba) {
 			delete[] matrix;
+			matrix = nullptr;
+			throw bad_alloc(ba);
+		}
+		for (size_t i = 0; i < row; i++)
+			matrix[i] = raw_matrix + i * column;
+		for (size_t i = 0; i < row; i++) {
+			for (size_t j = 0; j < column; j++)
+				matrix[i][j] = a.matrix[i][j];
+		}
+	}
+
+	Matrix& operator = (const Matrix<T>& a) {
+		if (&a == this) return *this;
+		row = a.row;
+		column = a.column;
+		delete[] raw_matrix;
+		raw_matrix = nullptr;
+		delete[] matrix;
+		matrix = nullptr;
+		try { matrix = new T * [row]; }
+		catch (bad_alloc& ba) {
+			throw bad_alloc(ba);
+		}
+		try { raw_matrix = new T[row * column]; }
+		catch (bad_alloc& ba) {
+			delete[] matrix;
+			matrix = nullptr;
 			throw bad_alloc(ba);
 		}
 		for (size_t i = 0; i < row; i++)
@@ -170,53 +186,49 @@ public:
 	void set(size_t i, size_t j, T k) {
 		try {
 			if ((i >= row) || (j >= column))
-				throw - 2;
+				throw (invalid_argument("Wrong index!"));
 			matrix[i][j] = k;
 		}
-		catch (int i) {
-			cout << "Error ¹" << i << " index too big!" << endl;
-			return;
+		catch (invalid_argument) {
+			throw (invalid_argument("Wrong index!"));
 		}
 	}
 
-	T get(const size_t i, const size_t j) const{
+	T get(const size_t i, const size_t j) const {
 		try {
 			if ((i >= row) || (j >= column))
-				throw - 2;
+				throw (invalid_argument("Wrong index!"));
 		}
-		catch (int i) {
-			cout << "Error ¹" << i << " index too big" << endl;
-			return;
+		catch (invalid_argument) {
+			throw (invalid_argument("Wrong index!"));
 		}
 		return matrix[i][j];
 	}
 
+	size_t get_row() const {
+		return row;
+	}
+
+	size_t get_column() const {
+		return column;
+	}
+
 	void rows(const size_t k) {
-		try {
-			if (k >= row)
-				throw - 2;
+		if (k < row) {
+			for (size_t i = 0; i < column; i++)
+				cout << matrix[k][i] << " ";
 		}
-		catch (int i) {
-			cout << "Error ¹" << i << " index too big" << endl;
-			return ;
-		}
-		for (int i = 0; i < column; i++) {
-			cout << matrix[k][i];
-		}
+		else
+			throw (invalid_argument("Wrong index!"));
 	}
 
 	void columns(const size_t k) {
-		try {
-			if (k >= column)
-				throw - 2;
+		if (k < row) {
+			for (size_t i = 0; i < row; i++)
+				cout << matrix[i][k] << " ";
 		}
-		catch (int i) {
-			cout << "Error ¹" << i << " index too big" << endl;
-			return ;
-		}
-		for (int i = 0; i < row; i++) {
-			cout << matrix[i][k];
-		}
+		else
+			throw (invalid_argument("Wrong index"));
 	}
 
 	Matrix operator+(const Matrix<T>& m)const {
@@ -253,27 +265,51 @@ public:
 
 	~Matrix() {
 		delete[] raw_matrix;
+		raw_matrix = nullptr;
 		delete[] matrix;
+		matrix = nullptr;
 	}
 };
 
+ ostream& operator << (ostream& out, point& n) {
+	out << '{' << n.get_x() << ' ' << n.get_y() << ' ' << n.get_z() << '}';
+	return out;
+}
+
 int main() {
-	//Matrix <point<int>> test(3, 5, 1);
-	//Matrix <point<int>> test2(3, 5, 1);
-	Matrix <int> a(3, 2, 1);
-	Matrix <int> b(3, 2, 0);
-	Matrix <int> c(4, 4, 0);
-	cout << a;
-	//test.set(1, 1, 1);
-	//auto test3 = test + test2;
-	//cout << test3;
-	/*a.set(1, 1);
-	b.set(1, 1);
-	c = b + a;
-	int k = c.get(2, 2);
-	cout << k << endl;
-	cout << c;*/
+	try {
+		Matrix <point> test(3, 5, 1);
+		Matrix <point> test2(3, 5, 1);
+		Matrix <point> test3(3, 2, 1);
+		Matrix <int> a(3, 2, 1);
+		Matrix <int> b(2, 2, 0);
+		Matrix <int> c(2, 2, 0);
+		a.rows(1);
+		cout << "\n\n";
+		a.columns(1);
+		cout << "\n\n";
+		a.set(1, 1, 4);
+		a.get(1, 1);
+		cout << a << "\n";
+		test.set(1, 1, 1);
+		test3 = test + test2;
+		cout << test3;//-----------------------------------------
+		//b.set(1, 1);
+		//c = b + a;
+		//int k = c.get(2, 2);
+		//cout << k << endl;
+		//cout << c;
+	}
+	catch(runtime_error& e){
+		cerr << e.what();
+	}
+	catch (logic_error& e) {
+		cerr << e.what();
+	}
+	catch (bad_alloc& e) {
+		cerr << e.what();
+	}
 	return 0;
 }
 
-//#4 #10 #12 #13 #14 #18 #21 #31
+// #6 #7 #8 #11 #17 #20 #22 #25 #28  
