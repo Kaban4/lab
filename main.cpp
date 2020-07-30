@@ -99,16 +99,16 @@ int main() {
 		Matrix <int> b(5, 9, 5);
 		Matrix <int> c(2, 2, 0);
 		a.rows(1);
-		//cout << "\n\n";
+		cout << "\n\n";
 		a.columns(1);
-		//cout << "\n\n";
-		//a.set(1, 1, 'k');
-		//a.get(1, 1);
+		cout << "\n\n";
+		a.set(1, 1, 'k');
+		a.get(1, 1);
 		//cout << b << "\n";
-		//test.set(1, 1, 1);
-		//test3 = test + test2;
-		//cout << test3;//-----------------------------------------
-		//c = b + a;
+		test.set(1, 1, 1);
+		test3 = test + test2;
+	//	cout << test3;//-----------------------------------------
+		c = b + a;
 		//int k = c.get(2, 2);
 		//cout << k << endl;
 		//cout << c;
