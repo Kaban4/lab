@@ -5,10 +5,9 @@ private:
 	int x;
 	int y;
 	int z;
-	void check(int sum, int i, int j) const;
 public:
 	point();
-	point(int i);
+	point(int x);
 	point operator+(const point& m)const;
 	point& operator = (const point& a);
 	int get_x();
@@ -16,14 +15,14 @@ public:
 	int get_z();
 };
 
-void point::check(int sum, int i, int j) const {
+void check(const int sum, const int i, const int j) {
 	if ((i >= 0) && (j >= 0)) {
 		if ((sum < i) || (sum < j))
-			throw (out_of_range("Stackoverflow!"));
+			throw (overflow_error("Overflow!"));
 	}
 	if ((i < 0) && (j < 0)) {
 		if ((sum > i) || (sum > j))
-			throw (out_of_range("Stackoverflow!"));
+			throw (overflow_error("Overflow!"));
 	}
 }
 
@@ -33,22 +32,17 @@ point::point() {
 	z = 0;
 }
 
-point::point(int i) { x = i; y = i; z = i; }
+point::point(int x) : x(x), y(x), z(x) {}
 
 point point::operator+(const point& m)const {
-	try {
-		point v;
-		v.x = x + m.x;
-		check(v.x, x, m.x);
-		v.y = y + m.y;
-		check(v.y, y, m.y);
-		v.z = z + m.z;
-		check(v.z, z, m.z);
-		return v;
-	}
-	catch (out_of_range) {
-		throw (out_of_range("Stackoverflow!"));
-	}
+	point v;
+	v.x = x + m.x;
+	check(v.x, x, m.x);
+	v.y = y + m.y;
+	check(v.y, y, m.y);
+	v.z = z + m.z;
+	check(v.z, z, m.z);
+	return v;
 }
 
 point& point:: operator = (const point& a) {
@@ -61,11 +55,11 @@ point& point:: operator = (const point& a) {
 //bool operator >(const point a) const {
 //	return (x + y + z) > (a.x + a.y + a.z);
 //}
-
+//
 //bool operator >=(const point a) const {
 //	return (x + y + z) >= (a.x + a.y + a.z);
 //}
-
+//
 //bool operator <(const point a) const {
 //	int rez1 = 0, rez2 = 0;
 //	rez1 = sqrt(x * x + y * y + z * z);
@@ -90,37 +84,32 @@ ostream& operator << (ostream& out, point& n) {
 	return out;
 }
 
+
 int main() {
 	try {
-		Matrix <point> test(3, 5, 1);
-		Matrix <point> test2(3, 5, 1);
-		Matrix <point> test3(3, 2, 1);
-		Matrix <int> a(3, 2);
-		Matrix <int> b(5, 9, 5);
-		Matrix <int> c(2, 2, 0);
+		Matrix <point> test(2,2,1);
+		Matrix <point> test2(2,2,1);
+		Matrix <point> test3(2,2);
+		Matrix <int> a(3, 2, 0);
+		Matrix <int> b(3, 2, 5);
+		Matrix <int> c(5, 9, 0);
 		a.rows(1);
 		cout << "\n\n";
 		a.columns(1);
 		cout << "\n\n";
-		a.set(1, 1, 'k');
+		a.set(1, 1, 9);
 		a.get(1, 1);
-		//cout << b << "\n";
+		cout << b << "\n";
 		test.set(1, 1, 1);
 		test3 = test + test2;
-	//	cout << test3;//-----------------------------------------
+		cout << test3 << "\n";//-----------------------------------------
 		c = b + a;
 		//int k = c.get(2, 2);
 		//cout << k << endl;
-		//cout << c;
+		cout << c;
 	}
-	catch (runtime_error& e) {
+	catch (const exception e) {
 		cerr << e.what();
 	}
-	catch (logic_error& e) {
-		cerr << e.what();
-	}
-	catch (bad_alloc& e) {
-		cerr << e.what();
-	}
-	return 0;
-}
+
+} //51 50 49 47 46 45

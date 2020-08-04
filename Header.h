@@ -17,9 +17,8 @@ public:
 	Matrix(size_t rows, size_t columns);
 	Matrix(const Matrix& a);
 	Matrix& operator = (const Matrix<T>& a);
-	//friend ostream& operator << (ostream& out, Matrix<T>& n);
 	void set(size_t i, size_t j, T k);
-	T get(const size_t i, const size_t j) const;
+	T& get(const size_t i, const size_t j) const;
 	size_t get_row() const;
 	size_t get_column() const;
 	void rows(const size_t k);
@@ -28,6 +27,15 @@ public:
 	~Matrix();
 };
 
+template<class T>
+ostream& operator << (ostream& out, Matrix<T>& n) {
+	for (size_t i = 0; i < n.get_row(); i++) {
+		for (size_t j = 0; j < n.get_column(); j++)
+			out << (T&)(n.get(i, j)) << " ";
+		out << "\n";
+	}
+	return out;
+}
 
 #include"Source.ipp"
 #endif

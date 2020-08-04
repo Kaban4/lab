@@ -1,11 +1,14 @@
 #ifdef Header
 template<class T>
 void Matrix<T>::create() {
+	size_t size = row * column;
+	if ((size / row != column) || (size / column != row)) {
+		cerr << "row = " << row << ", column = " << column << ", overflow result = " << size << endl;
+		throw overflow_error("Overflow!");
+	}
 	matrix = new T * [row];
 	try { 
 		matrix[0] = new T[row * column];
-		if ((((row * column) / row) != column) || (((row * column) / column) != row))
-			throw overflow_error("Error");
 	}
 	catch (bad_alloc) {
 		delete[] matrix;
@@ -68,16 +71,6 @@ Matrix<T>& Matrix<T>::operator = (const Matrix<T>& a) {
 	return *this;
 }
 
-//template<class T>
-//ostream& operator << (ostream& out, Matrix<T>& n) {
-//	for (size_t i = 0; i < n.row; i++) {
-//		for (size_t j = 0; j < n.column; j++)
-//			out << n.matrix[i][j] << " ";
-//		out << "\n";
-//	}
-//	return out;
-//}
-
 template<class T>
 void Matrix<T>::set(size_t i, size_t j, T k) {
 	if ((i >= row) || (j >= column))
@@ -86,14 +79,9 @@ void Matrix<T>::set(size_t i, size_t j, T k) {
 }
 
 template<class T>
-T Matrix<T>::get(const size_t i, const size_t j) const {
-	try {
-		if ((i >= row) || (j >= column))
-			throw (invalid_argument("Wrong index!"));
-	}
-	catch (invalid_argument) {
+T& Matrix<T>::get(const size_t i, const size_t j) const {
+	if ((i >= row) || (j >= column))
 		throw (invalid_argument("Wrong index!"));
-	}
 	return matrix[i][j];
 }
 
@@ -129,16 +117,14 @@ void Matrix<T>::columns(const size_t k) {
 
 template<class T>
 Matrix<T> Matrix<T>::operator+(const Matrix<T>& m)const {
-	if ((row != m.row) || (column != m.column)) {
+	if ((row != m.row) || (column != m.column))
 		throw (invalid_argument("Different size!")); 
 	Matrix<T> v(row, column);
 	for (size_t i = 0; i < row; i++) {
 		for (size_t j = 0; j < column; j++) 
 			v.matrix[i][j] = matrix[i][j] + m.matrix[i][j];
 	}
-		return v;
-	}
-	return *this;
+	return v;
 }
 
 template<class T>
