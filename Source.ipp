@@ -3,25 +3,19 @@ template<class T>
 void Matrix<T>::create() {
 	size_t size = row * column;
 	if ((size / row != column) || (size / column != row)) {
-		cerr << "row = " << row << ", column = " << column << ", overflow result = " << size << endl;
-		throw overflow_error("Overflow!");
+		cerr << "row = " << row << ", column = " << column
+			<< ", overflow result = " << size << endl;
+		throw overflow_error("row * column overflow");
 	}
 	matrix = new T * [row];
-	try { 
-		matrix[0] = new T[row * column];
-	}
-	catch (bad_alloc) {
+	try { matrix[0] = new T[size]; }
+	catch (const bad_alloc&) {
 		delete[] matrix;
 		matrix = nullptr;
 		throw;
 	}
-	catch (overflow_error) {
-		delete[] matrix;
-		matrix = nullptr;
-		throw;
-	}
-	for (size_t i = 0; i < row; i++)
-		matrix[i] = matrix[0] + i * column;
+	for (size_t i = 1; i < row; ++i)
+		matrix[i] = *matrix + i * column;
 }
 
 template<class T>
